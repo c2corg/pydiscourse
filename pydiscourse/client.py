@@ -109,12 +109,12 @@ class DiscourseClient(object):
     def private_messages(self, username=None, **kwargs):
         if username is None:
             username = self.api_username
-        return self._get('/topics/private-messages/{0}.json'.format(username), **kwargs)
+        return self._get('/t/private-messages/{0}.json'.format(username), **kwargs)
 
     def private_messages_unread(self, username=None, **kwargs):
         if username is None:
             username = self.api_username
-        return self._get('/topics/private-messages-unread/{0}.json'.format(username), **kwargs)
+        return self._get('/t/private-messages-unread/{0}.json'.format(username), **kwargs)
 
     def hot_topics(self, **kwargs):
         return self._get('/hot.json', **kwargs)
@@ -153,7 +153,7 @@ class DiscourseClient(object):
         for post_num, timing in timings.items():
             kwargs['timings[{0}]'.format(post_num)] = timing
 
-        return self._post('/topics/timings', **kwargs)
+        return self._post('/t/timings', **kwargs)
 
     def topic_posts(self, topic_id, **kwargs):
         return self._get('/t/{0}/posts.json'.format(topic_id), **kwargs)
@@ -169,7 +169,7 @@ class DiscourseClient(object):
         return self._put('/posts/{0}'.format(post_id), **kwargs)
 
     def topics_by(self, username, **kwargs):
-        url = '/topics/created-by/{0}.json'.format(username)
+        url = '/t/created-by/{0}.json'.format(username)
         return self._get(url, **kwargs)['topic_list']['topics']
 
     def invite_user_to_topic(self, user_email, topic_id):
