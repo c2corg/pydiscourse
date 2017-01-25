@@ -44,7 +44,15 @@ class DiscourseClient(object):
         return self._put('/admin/users/{0}/trust_level'.format(userid), level=level)
 
     def suspend(self, userid, duration, reason):
-        return self._put('/admin/users/{0}/suspend'.format(userid), duration=duration, reason=reason)
+        return self._put(
+            '/admin/users/{0}/suspend'.format(userid),
+            duration=duration, reason=reason,
+            content_type='text/plain; charset=utf-8')
+
+    def unsuspend(self, userid):
+        return self._put(
+            '/admin/users/{0}/unsuspend'.format(userid),
+            content_type='text/plain; charset=utf-8')
 
     def list_users(self, type, **kwargs):
         """ optional user search: filter='test@example.com' or filter='scott' """
@@ -242,7 +250,13 @@ class DiscourseClient(object):
             params['api_username'] = self.api_username
         url = self.host + path
 
-        headers = {'Accept': 'application/json; charset=utf-8'}
+        json_content = 'application/json; charset=utf-8'
+        if 'content_type' in params:
+            content_type = params.pop('content_type')
+        else:
+            content_type = json_content
+
+        headers = {'Accept': content_type}
 
         response = requests.request(
             verb, url, allow_redirects=False, params=params, headers=headers,
@@ -266,15 +280,17 @@ class DiscourseClient(object):
         if response.status_code == 302:
             raise DiscourseError('Unexpected Redirect, invalid api key or host?', response=response)
 
-        json_content = 'application/json; charset=utf-8'
-        content_type = response.headers['content-type']
-        if content_type != json_content:
+        response_content_type = response.headers['content-type']
+        if response_content_type != content_type:
             # some calls return empty html documents
             if response.content == ' ':
                 return None
 
             raise DiscourseError('Invalid Response, expecting "{0}" got "{1}"'.format(
-                                 json_content, content_type), response=response)
+                                 json_content, response_content_type), response=response)
+
+        if response_content_type != json_content:
+            return response.content
 
         try:
             decoded = response.json()
