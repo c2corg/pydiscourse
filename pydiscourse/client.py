@@ -187,6 +187,14 @@ class DiscourseClient(object):
         }
         return self._post('/t/{0}/invite.json'.format(topic_id), **kwargs)
 
+    def invite_user_to_topic_by_username(self, username, topic_id, message=None):
+        kwargs = {
+            'user': username
+        }
+        if message is not None:
+            kwargs['custom_message'] = message
+        return self._post('/t/{0}/invite.json'.format(topic_id), **kwargs)
+
     def search(self, term, **kwargs):
         kwargs['term'] = term
         return self._get('/search.json', **kwargs)
